@@ -22,7 +22,7 @@ POPULATION_1 = 2486
 POPULATION_2 = 2325
 POPULATION_TOTALE = 11000
 BIRTH_RATE = 2 / 7
-AJUSTEMENT_TIME = 200
+AJUSTEMENT_TIME = 300
 AJUSTEMENT_RATE = 0.001
 
 # Fonction pour créer un taux de survie des éléphants en fonction de l'âge
@@ -165,10 +165,11 @@ if __name__ == "__main__":
     # Affichage de la population initiale
     population.saveState()
 
+    #Permet de trouver l'ajustement du taux de naissance et l'ajuste
     population.findAjustement()
 
     # Simulation de la population sur 100 ans
-    for i in range(10000):
+    for i in range(200):
         population.passYear()
         print(f"Année {i}")
         population.numberElephant[i+1] = population.lenght()
@@ -177,6 +178,7 @@ if __name__ == "__main__":
     # Affichage de la population finale
     df = pd.DataFrame(population.numberElephant.items())
     population.saveState()
-    df.columns = ['year', 'elephant']
-    df.plot.scatter(x="year", y="elephant", title=f"Population growth")
+    df.columns = ['Année', 'Éléphants']
+    df.plot.scatter(x="Année", y="Éléphants", title=f"Croissance de la population")
     population.showInfo()
+    print(BIRTH_RATE-population.ajustement)
