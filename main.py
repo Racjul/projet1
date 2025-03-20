@@ -24,6 +24,8 @@ POPULATION_TOTALE = 11000
 BIRTH_RATE = 2 / 7
 AJUSTEMENT_TIME = 300
 AJUSTEMENT_RATE = 0.001
+AJUSTED_RATE =0.24071428571428566
+
 
 # Fonction pour créer un taux de survie des éléphants en fonction de l'âge
 def createSurvivalRate():
@@ -69,7 +71,20 @@ class Population:
         self.elephantDeath = {}  # Décès par année
         self.numberElephant= {}
         self.ajustement  = 0 #Ajustement
+        self.superimposeGraph = []
     
+    def findFecundNumber(self):
+        count= 0
+        for elephant in self.liste:
+            if elephant.sexe == True  and elephant.age >=12 and elephant.age <=60:
+                count+=1
+        return count
+
+    def killRandomElephant(self):
+        randomIndex = random.randint(0, len(self.liste)-1)
+        self.liste.pop(randomIndex)
+        return
+
     def findAjustement(self):
         count =0 
         while(True):
@@ -97,13 +112,16 @@ class Population:
 
     def add(self, elephant):
         self.liste.append(elephant)
-
+    def setAjustement(self, ajustement):
+        self.ajustement = ajustement
     # Sauvegarde l'état actuel de la population et affiche un graphique
     def saveState(self):
         df = pd.DataFrame.from_records([s.to_dict() for s in self.liste])
         df_count = df['age'].value_counts().reset_index()
-        df_count.columns = ['age', 'count']
-        df_count.plot.scatter(x="age", y="count", title=f"population année {self.year}")
+        df_count.columns = ['age', 'percentage']
+        total_population =  df_count['percentage'].sum()
+        df_count['percentage'] =  df_count['percentage']/total_population *100
+        df_count.plot.scatter(x="age", y="percentage", title=f"Répartition de la population à l'année {self.year} avec dard",color="g")
 
     # Gère la mortalité des éléphants
     def death(self):
@@ -138,13 +156,37 @@ class Population:
 
     # Affiche les informations finales sur la population après simulation
     def showInfo(self):
-        print("Nombre de nouveau-nés morts:")
-        pprint(self.newElephant)
-        print("Nombre d'éléphants morts:")
-        pprint(self.elephantDeath)
+         # Plot the first scatter plot
+        # Add labels and legend
+                #print("Nombre de nouveau-nés morts:")
+        #pprint(self.newElephant)
+        #print("Nombre d'éléphants morts:")
+        #pprint(self.elephantDeath)
         print(f"Population initiale: {self.defaultLenght}")
         print(f"Population finale: {self.lenght()}")
         plt.show()
+
+    def addSuperimposeGraph(self,label):
+        df = pd.DataFrame.from_records([s.to_dict() for s in self.liste])
+        df_count = df['age'].value_counts().reset_index()
+        df_count.columns = ['âge', 'pourcentage']
+        total_population =  df_count['pourcentage'].sum()
+        df_count['pourcentage'] =  df_count['pourcentage']/total_population *100
+        self.superimposeGraph.append([label,df_count.copy()])
+
+    def showSuperimposeGraph(self,title):
+        for pair in self.superimposeGraph:
+            df = pair[1]
+            label = pair[0]
+            color = (random.uniform(0, 1), random.uniform(0, 1), random.uniform(0, 1))
+            plt.scatter(df['âge'],df['pourcentage'],color=color,label=label)
+        plt.tight_layout()
+        plt.xlabel("Âge")
+        plt.ylabel("Pourcentage")
+        plt.legend()
+        plt.title(title)
+        plt.show()
+
 
 if __name__ == "__main__":
     # Lecture des données initiales depuis un fichier CSV
@@ -163,22 +205,58 @@ if __name__ == "__main__":
     population.defaultLenght = population.lenght()
 
     # Affichage de la population initiale
-    population.saveState()
+    population.addSuperimposeGraph("année 0")
+    #population.saveState()
+
+
+    # Trouve le nombre de dards
+    nbFecund = population.findFecundNumber()
+    nbDard = BIRTH_RATE*nbFecund - AJUSTED_RATE*nbFecund
+    print("Nombre d'éléphant fertile:", nbFecund)
+    print("Nombre de dards:", nbDard)
 
     #Permet de trouver l'ajustement du taux de naissance et l'ajuste
-    population.findAjustement()
+    #population.findAjustement()
+
+    #Ajuste le taux manuellement suite aux tests
+    population.setAjustement(BIRTH_RATE-AJUSTED_RATE)
+
+    #Extermination de la population
+    #for _ in range(8000):
+    #   population.killRandomElephant()
+
+    #Calcul dajustement du birth rate avec le nb de dard
+    #nbFecund = population.findFecundNumber()
+    #population.setAjustement(BIRTH_RATE-nbDard/nbFecund)
+    #print(population.ajustement)
+
+    #count = 0
+    #while(True):
+    #    if(population.lenght() >= 10900):
+    #        break
+    #    population.passYear()
+    #    population.numberElephant[count] = population.lenght()
+    #    count+=1
 
     # Simulation de la population sur 100 ans
-    for i in range(200):
+    for i in range(100):
         population.passYear()
         print(f"Année {i}")
+        #if(population.lenght() >= 10900):
+            #population.setAjustement(BIRTH_RATE-AJUSTED_RATE)
+        #Sauvegarde les données à l'année
+        if(i==29):
+            population.addSuperimposeGraph("année 30")
+        if(i==59):
+            population.addSuperimposeGraph("année 60")
         population.numberElephant[i+1] = population.lenght()
 
-
+    population.showSuperimposeGraph("Courbe démographique avec dard")
     # Affichage de la population finale
-    df = pd.DataFrame(population.numberElephant.items())
-    population.saveState()
-    df.columns = ['Année', 'Éléphants']
-    df.plot.scatter(x="Année", y="Éléphants", title=f"Croissance de la population")
-    population.showInfo()
-    print(BIRTH_RATE-population.ajustement)
+    #df = pd.DataFrame(population.numberElephant.items())
+    #population.saveState()
+    #df.columns = ['Année', 'Éléphants']
+    #df.plot.scatter(x="Année", y="Éléphants", title=f"Éléphant par année (En distribuant les dards à partir de 10900 éléphants)")
+    #population.showInfo()
+
+
