@@ -15,12 +15,15 @@ def showGraphs(df):
     plt.show()
 
 # Constantes définissant la population et le taux de naissance
+
+# Constantes définissant la population et le taux de naissance
 POPULATION_1 = 2486
 POPULATION_2 = 2325
 POPULATION_TOTALE = 11000
 BIRTH_RATE = 2 / 7
-AJUSTEMENT_TIME = 200
+AJUSTEMENT_TIME = 300
 AJUSTEMENT_RATE = 0.001
+AJUSTED_RATE =0.24071428571428566
 
 # Fonction pour créer un taux de survie des éléphants en fonction de l'âge
 def createSurvivalRate():
