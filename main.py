@@ -23,7 +23,7 @@ if __name__ == "__main__":
             population.add(Elephant(age, random.randint(0, 1)))
     population.defaultLenght = population.lenght()
 
-    # Trouve le nombre de dards
+    # Trouve le nombre de dards 
     nbFecund = population.findFecundNumber()
     nbDard = BIRTH_RATE*nbFecund - AJUSTED_RATE*nbFecund
 

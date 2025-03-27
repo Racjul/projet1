@@ -24,7 +24,6 @@ if __name__ == "__main__":
     population.defaultLenght = population.lenght()
 
     # Affichage de la population initiale
-    population.addSuperimposeGraph("année 0")
     #population.saveState()
 
 
@@ -40,6 +39,22 @@ if __name__ == "__main__":
     #Ajuste le taux manuellement suite aux tests
     #Cela évite de refaire les calculs à chaque fois
     population.setAjustement(BIRTH_RATE-AJUSTED_RATE)
+
+    # Create a copy of the population
+    populationA = copy.deepcopy(population)
+    populationB = copy.deepcopy(population)
+    
+    # # Reduction du taux de survie de 5%
+    for key in populationA.survivalRate:
+        if(populationA.survivalRate[key]>= 0.05):
+            populationA.survivalRate[key] -= 0.05
+        else:
+            populationA.survivalRate[key] = 0.00
+
+    #Augmentation du taux de survie de 5%
+    for key in populationB.survivalRate:
+        populationB.survivalRate[key] += 0.05
+
 
     #Extermination de la population
     #for _ in range(8000):
@@ -59,8 +74,10 @@ if __name__ == "__main__":
     #    count+=1
 
     # Simulation de la population sur 100 ans
-    for i in range(100):
+    for i in range(60):
         population.passYear()
+        populationA.passYear()
+        populationB.passYear()
         print(f"Année {i}")
         #if(population.lenght() >= 10900):
             #population.setAjustement(BIRTH_RATE-AJUSTED_RATE)
@@ -70,8 +87,10 @@ if __name__ == "__main__":
         if(i==59):
             population.addSuperimposeGraph("année 60")
         population.numberElephant[i+1] = population.lenght()
+        populationA.numberElephant[i+1] = populationA.lenght()
+        populationB.numberElephant[i+1] = populationB.lenght()
 
-    population.showSuperimposeGraph("Courbe démographique avec dard")
+    pprint(population.survivalRate)
     # Affichage de la population finale
     #df = pd.DataFrame(population.numberElephant.items())
     #population.saveState()

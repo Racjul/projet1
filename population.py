@@ -65,6 +65,7 @@ class Population:
             print("Test pour ajustement: ", BIRTH_RATE - self.ajustement)
             while count <= AJUSTEMENT_TIME:
                 copyPopulation.passYear()
+                print(f"{count}:{copyPopulation.lenght()}")
                 count += 1
                 if count == AJUSTEMENT_TIME and abs(copyPopulation.lenght() - self.defaultLenght) < 500:
                     print("Success")
